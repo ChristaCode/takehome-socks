@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import { sendEmail } from './sendEmail';
 
 // Queue class for handling email data
 class Queue<T> {
@@ -38,18 +39,6 @@ interface FlowDataStructure {
     emails: Queue<EmailDataStructure>; // allows for multiple emails in a flow, each with its own time delay and queued in order
 }
 
-// Provided sendEmail function, included arguments for userEmail, subject, and emailBody
-const sendEmail = async (userEmail: string, subject: string, emailBody: string): Promise<boolean> => {
-    // Generate a random number between 0 and 1
-    const randomNumber = Math.random();
-    
-    // Simulating an asynchronous operation, e.g., sending an email
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // 95% chance to return true, 5% chance to return false - emails fail
-    return randomNumber < 0.95
-}
-
 // Function for processing email queue associated with flow
 const processEmailQueue = async (flowData: FlowDataStructure) => {
     const { userEmail, emails } = flowData;
@@ -72,7 +61,7 @@ const processEmailQueue = async (flowData: FlowDataStructure) => {
 app.use(express.json());
 
 // Express endpoint for receiving new email requests
-app.post('/trigger-emails', (req: Request, res: Response) => {
+app.post('/trigger-emails', async (req: Request, res: Response) => {
     const { eventNameTrigger, userEmail, emails } = req.body; // Assuming the user is sending in the email data in the request body
 
     // Check that the user has sent all required fields for creating a new flow
@@ -94,11 +83,10 @@ app.post('/trigger-emails', (req: Request, res: Response) => {
     };
 
     // Process the email queue for this flow
-    processEmailQueue(flowData);
+    await processEmailQueue(flowData);
 
     res.send('Emails queued successfully');
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+export default app;
+export { sendEmail }; // Export sendEmail for testing purposes

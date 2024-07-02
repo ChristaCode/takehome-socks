@@ -6,6 +6,11 @@ npm install
 npm run start
 ```
 
+## To test:
+```bash
+npm run test
+```
+
 ## Endpoint
 http://localhost:3000/trigger-emails
 
